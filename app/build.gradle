@@ -1,0 +1,46 @@
+apply plugin: 'android'
+
+def isTravis = "true".equals(System.getenv("TRAVIS"))
+def preDexEnabled = "true".equals(System.getProperty("pre-dex", "true"))
+
+android {
+    compileSdkVersion 19
+    buildToolsVersion "19.0.3"
+
+    dexOptions {
+        // Skip pre-dexing when running on Travis CI or when disabled via -Dpre-dex=false.
+        preDexLibraries = preDexEnabled && !isTravis
+    }
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 19
+        versionCode 10001
+        versionName "1.0"
+    }
+
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE.txt'
+    }
+    lintOptions {
+        // Don't abort if Lint finds an error, otherwise the Jenkins build
+        // will be marked as failed, and Jenkins won't analyse the Lint output
+        abortOnError false
+        checkAllWarnings true
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+dependencies {
+    compile 'com.netflix.rxjava:rxjava-core:0.16.1'
+    compile 'com.netflix.rxjava:rxjava-android:0.16.1'
+}
